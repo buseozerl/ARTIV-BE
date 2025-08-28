@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ArtıVibe</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #1c1c1c, #2b2b2b);
+      color: white;
+      text-align: center;
+    }
+    .container {
+      display: none;
+      padding: 40px;
+    }
+    .active {
+      display: block;
+    }
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+    .highlight {
+      color: #ff4081;
+    }
+    .mood-options, .interest-options {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .option-btn {
+      padding: 15px 25px;
+      border: none;
+      border-radius: 12px;
+      background: #333;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .option-btn:hover {
+      background: #ff4081;
+    }
+    .recommendation-card {
+      max-width: 500px;
+      margin: 20px auto;
+      background: #222;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+    .rec-image {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .rec-content {
+      padding: 20px;
+    }
+    .rec-category {
+      font-size: 0.9rem;
+      color: #ff4081;
+      margin-bottom: 5px;
+    }
+    .rec-title {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+    .rec-description {
+      font-size: 1rem;
+      margin-bottom: 15px;
+    }
+    .rec-action-btn {
+      display: inline-block;
+      padding: 10px 15px;
+      background: #ff4081;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .feedback-section {
+      margin-top: 30px;
+    }
+    #feedback-input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+    }
+    #feedback-submit-btn {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      background: #ff4081;
+      color: white;
+      cursor: pointer;
+    }
+    table {
+      background: #1c1c1c;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    td {
+      padding: 8px;
+      border-bottom: 1px solid #333;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. ARAYÜZ -->
+  <div id="mood-container" class="container active">
+    <h2>Bugünkü <span class="highlight">Ruh Halini</span> Seç</h2>
+    <div class="mood-options">
+      <button class="option-btn" onclick="selectMood('Mutlu')">😊 Mutlu</button>
+      <button class="option-btn" onclick="selectMood('Hüzünlü')">😔 Hüzünlü</button>
+      <button class="option-btn" onclick="selectMood('Motivasyonsuz')">😴 Motivasyonsuz</button>
+      <button class="option-btn" onclick="selectMood('Enerjik')">⚡ Enerjik</button>
+    </div>
+  </div>
+
+  <!-- 2. ARAYÜZ -->
+  <div id="interest-container" class="container">
+    <h2>Bir <span class="highlight">İlgi Alanı</span> Seç</h2>
+    <div class="interest-options">
+      <button class="option-btn" onclick="selectInterest('Müzik')">🎵 Müzik</button>
+      <button class="option-btn" onclick="selectInterest('Film')">🎬 Film</button>
+      <button class="option-btn" onclick="selectInterest('Kitap')">📚 Kitap</button>
+      <button class="option-btn" onclick="selectInterest('Etkinlik')">🎉 Etkinlik</button>
+    </div>
+  </div>
+
+  <!-- 3. ARAYÜZ -->
+  <div id="recommendation-container" class="container">
+    <h2>Sana Özel <span class="highlight">ArtıVibe</span> Önerin:</h2>
+    <div class="recommendation-card" id="recommendation-card"></div>
+
+    <!-- Fiyat karşılaştırma -->
+    <div id="price-comparison" style="display:none; margin-bottom:30px;">
+      <h3>📊 Fiyat Karşılaştırması</h3>
+      <table style="width:100%; border-collapse:collapse; margin-top:15px;">
+        <tbody id="price-list"></tbody>
+      </table>
+    </div>
+
+    <!-- Chatbot -->
+    <div class="feedback-section">
+      <p>Bu öneri hakkında ne düşünüyorsun?</p>
+      <div id="chat-window" style="max-height:200px; overflow-y:auto; padding:15px; background:rgba(30,30,30,0.5); border-radius:12px; margin-bottom:15px; text-align:left;">
+        <div><strong>ArtıVibe 🤖:</strong> Merhaba! Önerimi beğendin mi? 😊</div>
+      </div>
+      <form id="feedback-form" style="display:flex; gap:10px;">
+        <input type="text" id="feedback-input" placeholder="Mesajını yaz..." />
+        <button type="submit" id="feedback-submit-btn">Gönder 💬</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let selectedMood = "";
+    let selectedInterest = "";
+
+    function selectMood(mood) {
+      selectedMood = mood;
+      document.getElementById("mood-container").classList.remove("active");
+      document.getElementById("interest-container").classList.add("active");
+    }
+
+    function selectInterest(interest) {
+      selectedInterest = interest;
+      document.getElementById("interest-container").classList.remove("active");
+      document.getElementById("recommendation-container").classList.add("active");
+      showRecommendation(recommendationsDB[interest][0]); // basit örnek
+    }
+
+    // ÖNERİLER DATABASE
+    const recommendationsDB = {
+      "Kitap": [{
+        type: "kitap",
+        title: "Huzur",
+        image: "https://i.dr.com.tr/cache/600x600-0/originals/0000000064730-1.jpg",
+        category: "Roman",
+        description: "Ahmet Hamdi Tanpınar'ın ölümsüz eseri.",
+        actionText: "Satın Al",
+        actionLink: "https://www.dr.com.tr/Kitap/Huzur/Edebiyat/Roman/Turkiye-Roman/urunno=0000000064730",
+        prices: [
+          { site: "D&R", price: "125₺", link: "https://www.dr.com.tr/..." },
+          { site: "Kitapyurdu", price: "110₺", link: "https://www.kitapyurdu.com/..." },
+          { site: "Trendyol", price: "120₺", link: "https://www.trendyol.com/..." }
+        ]
+      }]
+    };
+
+    // Öneriyi ekrana basma
+    function showRecommendation(rec) {
+      const card = document.getElementById("recommendation-card");
+      card.innerHTML = `
+        <img src="${rec.image}" alt="${rec.title}" class="rec-image" />
+        <div class="rec-content">
+          <div class="rec-category">${rec.category}</div>
+          <div class="rec-title">${rec.title}</div>
+          <div class="rec-description">${rec.description}</div>
+          <a href="${rec.actionLink}" target="_blank" class="rec-action-btn">${rec.actionText} 🔗</a>
+        </div>
+      `;
+      if (rec.prices) {
+        document.getElementById("price-comparison").style.display = "block";
+        const list = document.getElementById("price-list");
+        list.innerHTML = rec.prices.map(p => `
+          <tr>
+            <td>${p.site}</td>
+            <td>${p.price}</td>
+            <td><a href="${p.link}" target="_blank" style="color:#ff4081">Git →</a></td>
+          </tr>
+        `).join("");
+      } else {
+        document.getElementById("price-comparison").style.display = "none";
+      }
+    }
+
+    // Chatbot
+    const chatWindow = document.getElementById("chat-window");
+    const feedbackForm = document.getElementById("feedback-form");
+    feedbackForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const input = document.getElementById("feedback-input");
+      const msg = input.value.trim();
+      if (!msg) return;
+      chatWindow.innerHTML += `<div><strong>Sen 🧑:</strong> ${msg}</div>`;
+      setTimeout(() => {
+        let reply = "Teşekkürler! Daha fazla öneri getirebilirim. 🔄";
+        if (msg.includes("beğenmedim")) reply = "Üzgünüm 😢 İstersen farklı bir öneri sunabilirim.";
+        if (msg.includes("beğendim")) reply = "Harika! 🎉 O zaman benzer öneriler de getirebilirim.";
+        chatWindow.innerHTML += `<div><strong>ArtıVibe 🤖:</strong> ${reply}</div>`;
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+      }, 600);
+      input.value = "";
+    });
+  </script>
+</body>
+</html>
+
+
+
+
